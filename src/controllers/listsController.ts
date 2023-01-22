@@ -20,15 +20,22 @@ export async function createList(req: Request, res: Response) {
 }
 
 export async function addItemToList(req: Request, res: Response) {
-    const listId = req.params
+
+    const { listId } = req.params
     const { itemName } = req.body
     const userId = res.locals.userId
-    //checar se a lista é mesmo do usuário
+
     try {
         checkIfListBelongsToUser(userId, Number(listId))
+
         const itemId = await checkItemExistence(itemName)
+
         await connection.query(`INSERT INTO "listsItems" ("listId", "itemId") VALUES ($1,$2)`, [listId, itemId])
+
+        res.status(201).send("Item adicionado à lista com sucesso.")
+
     } catch (error) {
+
         res.sendStatus(500)
         console.log(error)
     }
@@ -41,13 +48,21 @@ async function checkListExistence(listName: string, userId: number): Promise<Que
 }
 
 async function checkItemExistence(itemName: string) {
-    const checkItemName: QueryResult<ItemEntity> = await connection.query(`SELECT * FROM items WHERE "itemName"=$1;`, [itemName])
-    if (checkItemName.rows.length > 0) return checkItemName.rows[0].id
-    const newItem = await connection.query(`INSERT INTO items ("itemName") VALUES ($1) RETURNING id;`, [itemName])
-    return newItem.rows[0].id
+
+    const checkItemName: QueryResult<ItemEntity> = await connection.query(`SELECT * FROM items WHERE "itemName"=$1;`, [itemName]);
+
+    if (checkItemName.rows.length > 0) return checkItemName.rows[0].id;
+
+    const newItem = await connection.query(`INSERT INTO items ("itemName") VALUES ($1) RETURNING id;`, [itemName]);
+
+    return newItem.rows[0].id;
+
 }
 
 async function checkIfListBelongsToUser(userId: number, listId: number) {
-    const list = await connection.query(`SELECT * FROM lists WHERE "userId"=$1, "listId"=$2;`)
-    if (list.rows.length <= 0) throw { name: "no_lists_found", message: "list not found or not attached to this user" }
+
+    const list = await connection.query(`SELECT * FROM lists WHERE "userId"=$1 AND id=$2;`, [userId, listId]);
+
+    if (list.rows.length <= 0) throw { name: "no_lists_found", message: "list not found or not attached to this user" };
+
 }

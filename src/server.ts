@@ -9,6 +9,7 @@ import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
 import { addItemToList, createList } from "./controllers/listsController";
 import listSchema from "./schemas/listSchema";
+import itemSchema from "./schemas/itemSchema";
 
 dotenv.config()
 const server = express()
@@ -23,7 +24,7 @@ server.post("/sign-in", validate(loginSchema), userSignIn)
 server.use(validateAuthorization)
 server.delete("/logout", logout)
 server.post("/new-list", validate(listSchema), createList)
-server.post("/add-item-to-list/:listId", addItemToList)
+server.post("/add-item-to-list/:listId", validate(itemSchema), addItemToList)
 server.use(errorsHandling)
 
 const port = process.env.PORT || 4000
