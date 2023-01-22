@@ -6,3 +6,10 @@ export type UserEntity = {
 }
 
 export type User = Omit<UserEntity, "id">
+
+export type SignIn = Omit<UserEntity, "id"|"name">
+
+export type SignInResult = {
+    userId: number,
+    token: string
+}
