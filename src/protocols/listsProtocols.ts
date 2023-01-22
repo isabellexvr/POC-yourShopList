@@ -5,3 +5,10 @@ export type ListEntity = {
 }
 
 export type List = Omit<ListEntity, "id">
+
+export type ItemEntity = {
+    id: number,
+    itemName: string
+}
+
+export type Item = Omit<ItemEntity, "id">
