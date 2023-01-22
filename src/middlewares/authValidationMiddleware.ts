@@ -14,18 +14,19 @@ export async function validateAuthorization(req: Request, res: Response, next: N
         throw unauthorizedError()
     }
     try {
+
         const { userId } = jwt.verify(token, process.env.JWT_SECRET as string) as JWTPayload
-        const isAlreadyLogged = await findSession(token, userId)
-        if (isAlreadyLogged.rows.length > 0) {
-            throw alreadyLogged()
-        }
         res.locals.userId = userId
+
     } catch (error: any) {
         if (error.name === "unauthorized_error") {
             return res.status(401).send(error.message)
         }
         if (error.name === "already_logged_error") {
             return res.status(409).send(error.message)
+        }else {
+            res.status(500).send("Internal Server error")
+            console.log(error)
         }
     }
     next()

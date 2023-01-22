@@ -4,7 +4,7 @@ import dotenv from "dotenv"
 import { validate } from "./middlewares/validationMiddleware";
 import registrationSchema from "./schemas/registrationSchema";
 import loginSchema from "./schemas/loginSchema";
-import { userSignIn } from "./controllers/loginController";
+import { userSignIn, logout } from "./controllers/loginController";
 import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
 
@@ -20,6 +20,7 @@ server.get("/health", (req, res) => {
 server.post("/sign-up", validate(registrationSchema), registerNewUser)
 server.post("/sign-in", validate(loginSchema), userSignIn)
 server.use(validateAuthorization)
+server.delete("/logout", logout)
 server.use(errorsHandling)
 
 const port = process.env.PORT || 4000
@@ -27,3 +28,10 @@ const port = process.env.PORT || 4000
 server.listen(port, () => {
     console.log(`Server is listening on port ${port}`)
 })
+
+
+/* const isAlreadyLogged = await findSession(token, userId)
+if (isAlreadyLogged.rows.length > 0) {
+    console.log("owfef")
+    throw alreadyLogged()
+} */

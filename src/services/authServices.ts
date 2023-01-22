@@ -37,7 +37,7 @@ export async function validatePassword(insertedPassword: string, password: strin
 }
 
 export async function createNewSession(userId: number): Promise<string> {
-    const token = jwt.sign({ userId }, process.env.PORT as string)
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET as string)
     await createSession(userId, token)
     return token
 }

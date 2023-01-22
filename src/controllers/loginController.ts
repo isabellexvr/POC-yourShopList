@@ -1,6 +1,7 @@
 import {Request, Response} from "express"
 import authServices from "../services/authServices"
 import { SignIn } from "../protocols/usersProtocols"
+import { connection } from "../database/db"
 
 export async function userSignIn(req: Request, res: Response) {
     const { email, password } = req.body as SignIn
@@ -14,5 +15,16 @@ export async function userSignIn(req: Request, res: Response) {
             res.sendStatus(500)
             console.log(error)
         }
+    }
+}
+
+export async function logout(req: Request, res: Response){
+    const userId = res.locals.userId
+
+    try{
+        await connection.query(`DELETE FROM sessions WHERE "userId"=$1`, [userId])
+        res.status(200).send("Usuário deslogado com sucesso.")
+    }catch(error: any){
+        console.log(error)
     }
 }
