@@ -1,6 +1,8 @@
 import express from "express";
-import { registerNewUser } from "./controllers/registerNewUser";
+import { registerNewUser } from "./controllers/registerController";
 import dotenv from "dotenv"
+import { validate } from "./middlewares/validationMiddleware";
+import registrationSchema from "./schemas/registrationSchema";
 
 dotenv.config()
 const server = express()
@@ -10,7 +12,7 @@ server.get("/health", (req, res) => {
     res.status(200).send('OK!')
 })
 
-server.post("/sign-up", registerNewUser)
+server.post("/sign-up", validate(registrationSchema), registerNewUser)
 
 const port = process.env.PORT || 4000
 
