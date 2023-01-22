@@ -1,4 +1,4 @@
-import { UserEntity, SignInResult } from './../protocols/usersProtocols';
+import { UserEntity, Session } from './../protocols/usersProtocols';
 import { QueryResult } from "pg";
 import { connection } from "../database/db";
 
@@ -9,6 +9,6 @@ export async function getUserByEmail(email: string): Promise<QueryResult<UserEnt
     return user
 }
 
-export async function createSession(userId: number, token: string): Promise<QueryResult<SignInResult>> {
+export async function createSession(userId: number, token: string): Promise<QueryResult<Session>> {
     return connection.query(`INSERT INTO sessions ("userId", token) VALUES ($1, $2)`, [userId, token])
 }

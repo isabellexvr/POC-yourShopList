@@ -5,6 +5,8 @@ import { validate } from "./middlewares/validationMiddleware";
 import registrationSchema from "./schemas/registrationSchema";
 import loginSchema from "./schemas/loginSchema";
 import { userSignIn } from "./controllers/loginController";
+import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
+import { validateAuthorization } from "./middlewares/authValidationMiddleware";
 
 
 dotenv.config()
@@ -17,6 +19,8 @@ server.get("/health", (req, res) => {
 
 server.post("/sign-up", validate(registrationSchema), registerNewUser)
 server.post("/sign-in", validate(loginSchema), userSignIn)
+server.use(validateAuthorization)
+server.use(errorsHandling)
 
 const port = process.env.PORT || 4000
 

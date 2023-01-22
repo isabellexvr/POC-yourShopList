@@ -1,6 +1,6 @@
 import dotenv from "dotenv"
 import { UserEntity } from "../protocols/usersProtocols";
-import { SignIn, SignInResult } from "../protocols/usersProtocols";
+import { SignIn, Session } from "../protocols/usersProtocols";
 import { invalidEmailError } from "../errors/signInErrors";
 import { invalidPasswordError } from "../errors/signInErrors";
 import jwt from "jsonwebtoken"
@@ -9,7 +9,7 @@ import { getUserByEmail, createSession } from "../repositories/userRepository";
 
 dotenv.config()
 
-async function signIn(data: SignIn): Promise<SignInResult> {
+async function signIn(data: SignIn): Promise<Session> {
     const { email, password } = data
 
     const userExistence = await checkUserExistence(email)

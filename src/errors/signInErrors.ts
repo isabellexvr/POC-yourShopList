@@ -13,3 +13,17 @@ export function invalidPasswordError():ServerError{
         message: "password is incorrect"
     }
 }
+
+export function unauthorizedError():ServerError{
+    return {
+        name: "unauthorized_error",
+        message: "you have no permission to do this"
+    }
+}
+
+export function alreadyLogged():ServerError{
+    return {
+        name: "already_logged_error",
+        message: "you are already logged, please logout before logging again"
+    }
+}

@@ -9,7 +9,7 @@ export type User = Omit<UserEntity, "id">
 
 export type SignIn = Omit<UserEntity, "id"|"name">
 
-export type SignInResult = {
+export type Session = {
     userId: number,
     token: string
 }
