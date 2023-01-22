@@ -7,6 +7,8 @@ import loginSchema from "./schemas/loginSchema";
 import { userSignIn, logout } from "./controllers/loginController";
 import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
+import { createList } from "./controllers/listsController";
+import listSchema from "./schemas/listSchema";
 
 
 dotenv.config()
@@ -21,6 +23,7 @@ server.post("/sign-up", validate(registrationSchema), registerNewUser)
 server.post("/sign-in", validate(loginSchema), userSignIn)
 server.use(validateAuthorization)
 server.delete("/logout", logout)
+server.post("/new-list", validate(listSchema), createList)
 server.use(errorsHandling)
 
 const port = process.env.PORT || 4000
