@@ -2,14 +2,14 @@ import { QueryResult } from 'pg';
 import { List, ItemEntity } from './../protocols/listsProtocols';
 import { Request, Response } from "express"
 import { connection } from "../database/db"
+import listsRepository from '../repositories/listsRepository';
 
 export async function createList(req: Request, res: Response) {
-    const { listName } = req.body
-    const userId = res.locals.userId
+    const { listName } = req.body as List
+    const userId = res.locals.userId as number
     try {
-        //checar se há uma lista de mesmo nome já registrada por esse usuário, se sim, não deixar
         await checkListExistence(listName, userId)
-        const createList = await connection.query(`INSERT INTO lists ("listName", "userId") VALUES ($1,$2) RETURNING id;`, [listName, userId])
+        const createList = await listsRepository.insertList(listName, userId)
         res.status(201).send({ listId: createList.rows[0].id, message: "Lista criada com sucesso." })
     } catch (error: any) {
         if (error.name === "list_name_error") res.status(409).send(error.message)
@@ -133,6 +133,21 @@ export async function getListById(req: Request, res: Response) {
     }
 }
 
+export async function deleteList(req: Request, res: Response) {
+    const userId = res.locals.userId;
+    const { listId } = req.params;
+    try {
+        await checkIfListBelongsToUser(userId, Number(listId));
+        await connection.query(`DELETE FROM lists WHERE "listId"=$1 AND "userId"=$2;`, [Number(listId), userId]);
+        await connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1`, [Number(listId)])
+        return res.status(200).send("Lista deletada com sucesso.")
+    } catch (error) {
+        if (error.name === "no_lists_found") res.status(404).send(error.message)
+        res.sendStatus(500)
+        console.log(error)
+    }
+}
+
 export async function deleteItemFromList(req: Request, res: Response) {
     const userId = res.locals.userId;
     const { listId } = req.params;
@@ -143,6 +158,8 @@ export async function deleteItemFromList(req: Request, res: Response) {
         await connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1 AND "itemId"=$2`, [Number(listId), Number(itemId)])
         res.status(200).send(`O item ${itemName} foi deletado da lista com sucesso.`)
     } catch (error) {
+        if (error.name === "no_lists_found") res.status(404).send(error.message)
+        res.sendStatus(500)
         console.log(error)
     }
 

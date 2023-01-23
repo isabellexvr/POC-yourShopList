@@ -6,7 +6,7 @@ import loginSchema from "./schemas/loginSchema";
 import { userSignIn, logout } from "./controllers/loginController";
 import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
-import { addItemToList, createList, deleteItemFromList, getAllListsByUser, getListById } from "./controllers/listsController";
+import { addItemToList, createList, deleteItemFromList, deleteList, getAllListsByUser, getListById } from "./controllers/listsController";
 import listSchema from "./schemas/listSchema";
 import itemSchema from "./schemas/itemSchema";
 
@@ -22,6 +22,7 @@ server.post("/sign-in", validate(loginSchema), userSignIn);
 server.use(validateAuthorization);
 server.delete("/logout", logout);
 server.post("/new-list", validate(listSchema), createList);
+server.delete("/delete-list/:listId", deleteList)
 server.post("/add-item-to-list/:listId", validate(itemSchema), addItemToList);
 server.get("/get-all-lists", getAllListsByUser);
 server.get("/get-list-by-id/:listId", getListById);
@@ -40,3 +41,5 @@ if (isAlreadyLogged.rows.length > 0) {
     console.log("owfef")
     throw alreadyLogged()
 } */
+
+//rota de deletar lista
