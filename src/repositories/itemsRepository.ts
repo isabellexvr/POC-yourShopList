@@ -18,8 +18,12 @@ function insertNewItem(itemName: string): Promise<QueryResult<ItemEntity>> {
     return connection.query(`INSERT INTO items ("itemName") VALUES ($1) RETURNING id;`, [itemName]);
 }
 
-function deleteItem(listId: number, itemId: number): Promise<QueryResult>{
+function deleteItem(listId: number, itemId: number): Promise<QueryResult<ListsItemsEntity>>{
     return connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1 AND "itemId"=$2`, [Number(listId), Number(itemId)]);
+}
+
+function deleteAllItemsFromList(listId: number): Promise<QueryResult<ListsItemsEntity>>{
+    return connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1`, [listId]);
 }
 
 const itemsRepository = {
@@ -27,7 +31,8 @@ const itemsRepository = {
     insertIntoList,
     findItemByName,
     insertNewItem,
-    deleteItem
+    deleteItem,
+    deleteAllItemsFromList
 }
 
 export default itemsRepository

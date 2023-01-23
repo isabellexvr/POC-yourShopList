@@ -60,11 +60,16 @@ function getList(listId: number, userId: number): Promise<QueryResult<UserLists>
 `, [listId, userId]);
 }
 
+function deleteList(listId: number, userId: number): Promise<QueryResult>{
+    return connection.query(`DELETE FROM lists WHERE "listId"=$1 AND "userId"=$2;`, [Number(listId), userId]);
+}
+
 const listsRepository = {
     finglistByUserId,
     getListByListId,
     getAllListsByUserId,
-    getList
+    getList,
+    deleteList
 }
 
 export default listsRepository

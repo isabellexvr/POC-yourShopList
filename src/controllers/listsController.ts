@@ -1,10 +1,8 @@
 import { QueryResult } from 'pg';
 import { List, UserLists } from './../protocols/listsProtocols';
 import { Request, Response } from "express"
-import { connection } from "../database/db"
 import listsRepository from '../repositories/listsRepository';
 import listsServices from '../services/listsServices';
-import { UserEntity } from '../protocols/usersProtocols';
 import itemsRepository from '../repositories/itemsRepository';
 
 async function createList(req: Request, res: Response) {
@@ -79,15 +77,22 @@ async function getListById(req: Request, res: Response) {
 }
 
 async function deleteList(req: Request, res: Response) {
+
     const userId = res.locals.userId;
     const { listId } = req.params;
+
     try {
         await listsServices.checkIfListBelongsToUser(userId, Number(listId));
-        await connection.query(`DELETE FROM lists WHERE "listId"=$1 AND "userId"=$2;`, [Number(listId), userId]);
-        await connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1`, [Number(listId)])
+
+        await listsRepository.deleteList(Number(listId), userId);
+
+        await itemsRepository.deleteAllItemsFromList(Number(listId));
+
         return res.status(200).send("Lista deletada com sucesso.")
     } catch (error) {
+
         if (error.name === "no_lists_found") res.status(404).send(error.message)
+
         res.sendStatus(500)
         console.log(error)
     }
