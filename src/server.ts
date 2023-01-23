@@ -6,7 +6,7 @@ import loginSchema from "./schemas/loginSchema";
 import { userSignIn, logout } from "./controllers/loginController";
 import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
-import { addItemToList, createList, deleteItemFromList, deleteList, getAllListsByUser, getListById } from "./controllers/listsController";
+import listsController from "./controllers/listsController"
 import listSchema from "./schemas/listSchema";
 import itemSchema from "./schemas/itemSchema";
 
@@ -21,12 +21,12 @@ server.post("/sign-up", validate(registrationSchema), registerNewUser);
 server.post("/sign-in", validate(loginSchema), userSignIn);
 server.use(validateAuthorization);
 server.delete("/logout", logout);
-server.post("/new-list", validate(listSchema), createList);
-server.delete("/delete-list/:listId", deleteList)
-server.post("/add-item-to-list/:listId", validate(itemSchema), addItemToList);
-server.get("/get-all-lists", getAllListsByUser);
-server.get("/get-list-by-id/:listId", getListById);
-server.delete("/delete-item-from-list/:listId", validate(itemSchema), deleteItemFromList)
+server.post("/new-list", validate(listSchema), listsController.createList);
+server.delete("/delete-list/:listId", listsController.deleteList)
+server.post("/add-item-to-list/:listId", validate(itemSchema), listsController.addItemToList);
+server.get("/get-all-lists", listsController.getAllListsByUser);
+server.get("/get-list-by-id/:listId", listsController.getListById);
+server.delete("/delete-item-from-list/:listId", validate(itemSchema), listsController.deleteItemFromList)
 server.use(errorsHandling);
 
 const port = process.env.PORT || 4000
@@ -34,12 +34,3 @@ const port = process.env.PORT || 4000
 server.listen(port, () => {
     console.log(`Server is listening on port ${port}`)
 })
-
-
-/* const isAlreadyLogged = await findSession(token, userId)
-if (isAlreadyLogged.rows.length > 0) {
-    console.log("owfef")
-    throw alreadyLogged()
-} */
-
-//rota de deletar lista

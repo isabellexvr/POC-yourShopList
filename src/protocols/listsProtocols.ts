@@ -12,3 +12,9 @@ export type ItemEntity = {
 }
 
 export type Item = Omit<ItemEntity, "id">
+
+export type ListsItemsEntity = {
+    id: number,
+    listId: number,
+    itemId: number
+}
