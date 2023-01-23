@@ -23,11 +23,16 @@ function createUser(name:string, email: string, password: string): Promise<Query
     return connection.query("INSERT INTO users (name, email, password) VALUES ($1,$2,$3);", [name, email, password]);
 }
 
+function deleteSession(userId: number): Promise<QueryResult>{
+    return connection.query(`DELETE FROM sessions WHERE "userId"=$1`, [userId])
+}
+
 const userRepository = {
     getUserByEmail,
     createSession,
     findSession,
-    createUser
+    createUser,
+    deleteSession
 }
 
 export default userRepository
