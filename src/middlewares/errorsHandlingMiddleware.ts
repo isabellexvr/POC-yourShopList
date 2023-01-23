@@ -27,6 +27,9 @@ export function errorsHandling(err: ServerError, req: Request, res: Response, ne
     if (err.name === "no_lists_found") { 
         return res.status(404).send(err.message) 
     }
+    if (err.name === "list_name_error") { 
+        return res.status(404).send(err.message) 
+    }
 
     console.error(err.name);
     res.status(500).send({

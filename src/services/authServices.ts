@@ -1,13 +1,10 @@
-import dotenv from "dotenv"
 import { UserEntity } from "../protocols/usersProtocols";
 import { SignIn, Session } from "../protocols/usersProtocols";
 import { invalidEmailError } from "../errors/signInErrors";
 import { invalidPasswordError } from "../errors/signInErrors";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import { getUserByEmail, createSession, findSession } from "../repositories/userRepository";
-
-dotenv.config()
+import userRepository from "../repositories/userRepository"
 
 async function signIn(data: SignIn): Promise<Session> {
     const { email, password } = data
@@ -25,7 +22,7 @@ async function signIn(data: SignIn): Promise<Session> {
 }
 
 async function checkUserExistence(email: string): Promise<UserEntity> {
-    const user = await getUserByEmail(email)
+    const user = await userRepository.getUserByEmail(email)
     if (user.rows.length <= 0) throw invalidEmailError()
     return user.rows[0]
 }
@@ -38,12 +35,12 @@ async function validatePassword(insertedPassword: string, password: string): Pro
 
 async function createNewSession(userId: number): Promise<string> {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET as string)
-    await createSession(userId, token)
+    await userRepository.createSession(userId, token)
     return token
 }
 
 async function checkSessionExistence(userId: number) {
-    const session = await findSession(userId)
+    const session = await userRepository.findSession(userId)
 
     return session
 }
