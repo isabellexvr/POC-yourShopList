@@ -22,12 +22,16 @@ export async function validateAuthorization(req: Request, res: Response, next: N
         if (error.name === "unauthorized_error") {
             return res.status(401).send(error.message)
         }
+        if(error.name === "JsonWebTokenError"){
+            return res.status(401).send(error.message)
+        }
         if (error.name === "already_logged_error") {
             return res.status(409).send(error.message)
         }else {
-            res.status(500).send("Internal Server error")
+            res.status(401).send(error)
             console.log(error)
         }
+        
     }
     next()
 }
