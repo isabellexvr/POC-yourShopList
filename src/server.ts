@@ -7,7 +7,7 @@ import loginSchema from "./schemas/loginSchema";
 import { userSignIn, logout } from "./controllers/loginController";
 import { errorsHandling } from "./middlewares/errorsHandlingMiddleware";
 import { validateAuthorization } from "./middlewares/authValidationMiddleware";
-import { addItemToList, createList, getAllListsByUser } from "./controllers/listsController";
+import { addItemToList, createList, getAllListsByUser, getListById } from "./controllers/listsController";
 import listSchema from "./schemas/listSchema";
 import itemSchema from "./schemas/itemSchema";
 
@@ -26,6 +26,7 @@ server.delete("/logout", logout)
 server.post("/new-list", validate(listSchema), createList)
 server.post("/add-item-to-list/:listId", validate(itemSchema), addItemToList)
 server.get("/get-all-lists", getAllListsByUser)
+server.get("/get-list-by-id/:listId", getListById)
 server.use(errorsHandling)
 
 const port = process.env.PORT || 4000

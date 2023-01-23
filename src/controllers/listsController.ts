@@ -70,6 +70,7 @@ async function checkIfListBelongsToUser(userId: number, listId: number) {
 export async function getAllListsByUser(req: Request, res: Response) {
     const userId = res.locals.userId;
     //tipo de array de objetos >>daquele<< tipo o.o
+    //verificar erro >:(
     try {
         const lists = await connection.query(`
     SELECT 
@@ -93,6 +94,38 @@ export async function getAllListsByUser(req: Request, res: Response) {
     GROUP BY u.id, l.id
     ;`, [userId])
         res.status(200).send(lists.rows)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function getListById(req: Request, res: Response) {
+    const userId = res.locals.userId;
+    const { listId } = req.params
+    try {
+        const list = await connection.query(`
+    SELECT 
+        u."name" as owner,
+        l."listName",
+        ARRAY_TO_JSON(
+            ARRAY_AGG(
+                JSONB_BUILD_OBJECT(
+                    'item', i."itemName" 
+                ) 
+            ) 
+        ) AS items
+    FROM lists l 
+    JOIN "listsItems" li 
+        ON l.id =li."listId" 
+    JOIN users u 
+        ON l."userId"=u.id
+    JOIN items i
+        ON i.id = li."itemId" 
+    WHERE l.id=$1 AND u.id=$2
+    GROUP BY u.id, l.id
+    ;
+        `, [listId, userId]);
+        res.status(200).send(list.rows)
     } catch (error) {
         console.log(error)
     }
