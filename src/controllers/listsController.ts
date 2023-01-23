@@ -66,3 +66,34 @@ async function checkIfListBelongsToUser(userId: number, listId: number) {
     if (list.rows.length <= 0) throw { name: "no_lists_found", message: "list not found or not attached to this user" };
 
 }
+
+export async function getAllListsByUser(req: Request, res: Response) {
+    const userId = res.locals.userId;
+    //tipo de array de objetos >>daquele<< tipo o.o
+    try {
+        const lists = await connection.query(`
+    SELECT 
+        u."name" as owner,
+        l."listName",
+        ARRAY_TO_JSON(
+            ARRAY_AGG(
+                JSONB_BUILD_OBJECT(
+                    'item', i."itemName" 
+                ) 
+            ) 
+        ) AS items
+    FROM lists l 
+    JOIN "listsItems" li 
+        ON l.id =li."listId" 
+    JOIN users u 
+        ON l."userId"=u.id
+    JOIN items i
+        ON i.id = li."itemId" 
+    WHERE u.id=$1
+    GROUP BY u.id, l.id
+    ;`, [userId])
+        res.status(200).send(lists.rows)
+    } catch (error) {
+        console.log(error)
+    }
+}
