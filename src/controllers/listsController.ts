@@ -35,7 +35,7 @@ async function addItemToList(req: Request, res: Response) {
 
         res.status(201).send("Item adicionado à lista com sucesso.")
 
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === "no_lists_found") res.status(404).send(error.message)
         res.sendStatus(500)
         console.log(error)
@@ -51,7 +51,7 @@ async function findAllListsByUser(req: Request, res: Response) {
 
         res.status(200).send(lists.rows)
 
-    } catch (error) {
+    } catch (error: any) {
         res.sendStatus(500)
         console.log(error)
     }
@@ -69,7 +69,7 @@ async function getListById(req: Request, res: Response) {
         const list: QueryResult<UserLists> = await listsRepository.getList(Number(listId), userId);
 
         res.status(200).send(list.rows);
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === "no_lists_found") res.status(404).send(error.message)
         res.sendStatus(500)
         console.log(error)
@@ -89,7 +89,7 @@ async function deleteList(req: Request, res: Response) {
         await itemsRepository.deleteAllItemsFromList(Number(listId));
 
         return res.status(200).send("Lista deletada com sucesso.")
-    } catch (error) {
+    } catch (error: any) {
 
         if (error.name === "no_lists_found") res.status(404).send(error.message)
 
@@ -112,7 +112,7 @@ async function deleteItemFromList(req: Request, res: Response) {
         await itemsRepository.deleteItem(Number(listId), itemId);
 
         res.status(200).send(`O item ${itemName} foi deletado da lista com sucesso.`);
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === "no_lists_found") res.status(404).send(error.message)
         res.sendStatus(500)
         console.log(error)
