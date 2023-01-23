@@ -8,19 +8,26 @@ async function getUserByEmail(email: string): Promise<QueryResult<UserEntity>> {
 
     return user
 }
-//não volta uma session, volta uma array de sessions
-async function createSession(userId: number, token: string): Promise<QueryResult<SessionsArray>> {
+
+function createSession(userId: number, token: string): Promise<QueryResult<SessionsArray>> {
+
     return connection.query(`INSERT INTO sessions ("userId", token) VALUES ($1, $2)`, [userId, token])
 }
 
-async function findSession(userId:number): Promise<QueryResult<SessionsArray>>{
+function findSession(userId:number): Promise<QueryResult<SessionsArray>>{
+
     return connection.query(`SELECT * FROM sessions WHERE "userId"=$1`,[userId])
+}
+
+function createUser(name:string, email: string, password: string): Promise<QueryResult<UserEntity>>{
+    return connection.query("INSERT INTO users (name, email, password) VALUES ($1,$2,$3);", [name, email, password]);
 }
 
 const userRepository = {
     getUserByEmail,
     createSession,
-    findSession
+    findSession,
+    createUser
 }
 
 export default userRepository

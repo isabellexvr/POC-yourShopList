@@ -1,8 +1,7 @@
 import { QueryResult } from 'pg';
-import { User } from '../protocols/usersProtocols';
+import { User, UserEntity } from '../protocols/usersProtocols';
 import { Request, Response } from "express";
 import brcrypt from "bcrypt"
-import { connection } from '../database/db';
 import { userAlreadyExistsError } from '../errors/signUpErrors';
 import userRepository from '../repositories/userRepository';
 
@@ -11,10 +10,10 @@ export async function registerNewUser(req: Request, res: Response) {
     const hashedPassword: string = brcrypt.hashSync(password, 10);
 
     try {
-        const isThereAnyUser = await userRepository.getUserByEmail(email);
+        const isThereAnyUser: QueryResult<UserEntity> = await userRepository.getUserByEmail(email);
         if (isThereAnyUser.rows.length > 0) throw userAlreadyExistsError();
 
-        await connection.query("INSERT INTO users (name, email, password) VALUES ($1,$2,$3);", [name, email, hashedPassword]);
+        await userRepository.createUser(name, email, hashedPassword)
 
         res.status(201).send("Usuário registrado com sucesso.");
     } catch (error: any) {
