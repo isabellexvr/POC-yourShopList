@@ -5,7 +5,7 @@ import { invalidEmailError } from "../errors/signInErrors";
 import { invalidPasswordError } from "../errors/signInErrors";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import { getUserByEmail, createSession } from "../repositories/userRepository";
+import { getUserByEmail, createSession, findSession } from "../repositories/userRepository";
 
 dotenv.config()
 
@@ -42,12 +42,15 @@ async function createNewSession(userId: number): Promise<string> {
     return token
 }
 
-export async function checkSessionExistence(userId: number) {
-    
+async function checkSessionExistence(userId: number) {
+    const session = await findSession(userId)
+
+    return session
 }
 
 const authServices = {
     signIn,
+    checkSessionExistence
 }
 
 export default authServices
