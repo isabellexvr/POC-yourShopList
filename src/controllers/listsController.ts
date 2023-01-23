@@ -64,6 +64,7 @@ async function checkIfListBelongsToUser(userId: number, listId: number) {
     const list = await connection.query(`SELECT * FROM lists WHERE "userId"=$1 AND id=$2;`, [userId, listId]);
 
     if (list.rows.length <= 0) throw { name: "no_lists_found", message: "list not found or not attached to this user" };
+    return list.rows[0].id
 
 }
 
@@ -132,8 +133,17 @@ export async function getListById(req: Request, res: Response) {
     }
 }
 
-export async function deleteItemFromList(req: Request, res: Response){
+export async function deleteItemFromList(req: Request, res: Response) {
     const userId = res.locals.userId;
-    const { listId } = req.params
-    await checkIfListBelongsToUser(userId, Number(listId))
+    const { listId } = req.params;
+    const { itemName } = req.body;
+    try {
+        await checkIfListBelongsToUser(userId, Number(listId));
+        const itemId = await checkItemExistence(itemName);
+        await connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1 AND "itemId"=$2`, [Number(listId), Number(itemId)])
+        res.status(200).send(`O item ${itemName} foi deletado da lista com sucesso.`)
+    } catch (error) {
+        console.log(error)
+    }
+
 }
