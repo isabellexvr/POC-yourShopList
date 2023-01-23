@@ -14,7 +14,6 @@ function getListByListId(userId: number, listId: number): Promise<QueryResult<Li
 function getAllListsByUserId(userId: number): Promise<QueryResult<UserLists[]>>{
     return connection.query(`
         SELECT 
-            u."name" as owner,
             l."listName",
             ARRAY_TO_JSON(
                 ARRAY_AGG(
