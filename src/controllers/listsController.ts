@@ -43,9 +43,9 @@ async function addItemToList(req: Request, res: Response) {
 }
 
 async function getAllListsByUser(req: Request, res: Response) {
+
     const userId = res.locals.userId;
-    //tipo de array de objetos >>daquele<< tipo o.o
-    //verificar erro >:(
+
     try {
         const lists: QueryResult<UserLists> = await connection.query(`
             SELECT 
@@ -67,18 +67,25 @@ async function getAllListsByUser(req: Request, res: Response) {
                 ON i.id = li."itemId" 
             WHERE u.id=$1
             GROUP BY u.id, l.id
-    ;`, [userId])
+    ;`, [userId]);
+
         res.status(200).send(lists.rows)
+
     } catch (error) {
+        res.sendStatus(500)
         console.log(error)
     }
 }
 
 async function getListById(req: Request, res: Response) {
+
     const userId = res.locals.userId;
+
     const { listId } = req.params
+
     try {
-        await listsServices.checkIfListBelongsToUser(userId, Number(listId))
+        await listsServices.checkIfListBelongsToUser(userId, Number(listId));
+        
         const list: QueryResult<UserLists> = await connection.query(`
                 SELECT 
                     u."name" as owner,
@@ -103,6 +110,8 @@ async function getListById(req: Request, res: Response) {
         `, [listId, userId]);
         res.status(200).send(list.rows)
     } catch (error) {
+        if (error.name === "no_lists_found") res.status(404).send(error.message)
+        res.sendStatus(500)
         console.log(error)
     }
 }
