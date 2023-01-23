@@ -1,5 +1,5 @@
 import { QueryResult } from 'pg';
-import { List, ItemEntity } from './../protocols/listsProtocols';
+import { List, UserLists } from './../protocols/listsProtocols';
 import { Request, Response } from "express"
 import { connection } from "../database/db"
 import listsRepository from '../repositories/listsRepository';
@@ -47,26 +47,26 @@ async function getAllListsByUser(req: Request, res: Response) {
     //tipo de array de objetos >>daquele<< tipo o.o
     //verificar erro >:(
     try {
-        const lists = await connection.query(`
-    SELECT 
-        u."name" as owner,
-        l."listName",
-        ARRAY_TO_JSON(
-            ARRAY_AGG(
-                JSONB_BUILD_OBJECT(
-                    'item', i."itemName" 
-                ) 
-            ) 
-        ) AS items
-    FROM lists l 
-    JOIN "listsItems" li 
-        ON l.id =li."listId" 
-    JOIN users u 
-        ON l."userId"=u.id
-    JOIN items i
-        ON i.id = li."itemId" 
-    WHERE u.id=$1
-    GROUP BY u.id, l.id
+        const lists: QueryResult<UserLists> = await connection.query(`
+            SELECT 
+                u."name" as owner,
+                l."listName",
+                ARRAY_TO_JSON(
+                    ARRAY_AGG(
+                        JSONB_BUILD_OBJECT(
+                            'item', i."itemName" 
+                        ) 
+                    ) 
+                ) AS items
+            FROM lists l 
+            JOIN "listsItems" li 
+                ON l.id =li."listId" 
+            JOIN users u 
+                ON l."userId"=u.id
+            JOIN items i
+                ON i.id = li."itemId" 
+            WHERE u.id=$1
+            GROUP BY u.id, l.id
     ;`, [userId])
         res.status(200).send(lists.rows)
     } catch (error) {

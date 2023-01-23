@@ -18,3 +18,9 @@ export type ListsItemsEntity = {
     listId: number,
     itemId: number
 }
+
+export type UserLists = {
+    owner: string,
+    listName: string,
+    items: {item:string}[]
+}
