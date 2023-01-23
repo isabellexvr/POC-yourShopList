@@ -103,6 +103,7 @@ export async function getListById(req: Request, res: Response) {
     const userId = res.locals.userId;
     const { listId } = req.params
     try {
+        await checkIfListBelongsToUser(userId, Number(listId))
         const list = await connection.query(`
     SELECT 
         u."name" as owner,
@@ -129,4 +130,10 @@ export async function getListById(req: Request, res: Response) {
     } catch (error) {
         console.log(error)
     }
+}
+
+export async function deleteItemFromList(req: Request, res: Response){
+    const userId = res.locals.userId;
+    const { listId } = req.params
+    await checkIfListBelongsToUser(userId, Number(listId))
 }
