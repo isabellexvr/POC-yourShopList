@@ -42,7 +42,9 @@ async function createNewSession(userId: number): Promise<string> {
     return token
 }
 
-
+export async function checkSessionExistence(userId: number) {
+    
+}
 
 const authServices = {
     signIn,
