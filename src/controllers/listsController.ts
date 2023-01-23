@@ -5,13 +5,14 @@ import { connection } from "../database/db"
 import listsRepository from '../repositories/listsRepository';
 import listsServices from '../services/listsServices';
 import { UserEntity } from '../protocols/usersProtocols';
+import itemsRepository from '../repositories/itemsRepository';
 
 async function createList(req: Request, res: Response) {
     const { listName } = req.body as List
     const userId = res.locals.userId as number
     try {
         await listsServices.checkListExistence(listName, userId)
-        const createList = await listsRepository.insertList(listName, userId)
+        const createList = await itemsRepository.insertList(listName, userId)
         res.status(201).send({ listId: createList.rows[0].id, message: "Lista criada com sucesso." })
     } catch (error: any) {
         if (error.name === "list_name_error") res.status(409).send(error.message)
@@ -32,7 +33,7 @@ async function addItemToList(req: Request, res: Response) {
 
         const itemId = await listsServices.checkItemExistence(itemName)
 
-        await listsRepository.insertIntoList(Number(listId), itemId)
+        await itemsRepository.insertIntoList(Number(listId), itemId)
 
         res.status(201).send("Item adicionado à lista com sucesso.")
 
@@ -93,14 +94,19 @@ async function deleteList(req: Request, res: Response) {
 }
 
 async function deleteItemFromList(req: Request, res: Response) {
+
     const userId = res.locals.userId;
     const { listId } = req.params;
     const { itemName } = req.body;
+
     try {
         await listsServices.checkIfListBelongsToUser(userId, Number(listId));
+
         const itemId = await listsServices.checkItemExistence(itemName);
-        await connection.query(`DELETE FROM "listsItems" WHERE "listId"=$1 AND "itemId"=$2`, [Number(listId), Number(itemId)])
-        res.status(200).send(`O item ${itemName} foi deletado da lista com sucesso.`)
+
+        await itemsRepository.deleteItem(Number(listId), itemId);
+
+        res.status(200).send(`O item ${itemName} foi deletado da lista com sucesso.`);
     } catch (error) {
         if (error.name === "no_lists_found") res.status(404).send(error.message)
         res.sendStatus(500)

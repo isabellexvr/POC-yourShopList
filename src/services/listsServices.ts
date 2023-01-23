@@ -2,6 +2,7 @@ import { listNameConflictError, listNotFoundError } from '../errors/listsErrors'
 import { List, ItemEntity, ListEntity } from '../protocols/listsProtocols';
 import { QueryResult } from 'pg';
 import listsRepository from '../repositories/listsRepository';
+import itemsRepository from '../repositories/itemsRepository';
 
 
 async function checkListExistence(listName: string, userId: number): Promise<QueryResult<List>> {
@@ -15,11 +16,11 @@ async function checkListExistence(listName: string, userId: number): Promise<Que
 
 async function checkItemExistence(itemName: string): Promise<number> {
 
-    const checkItemName: QueryResult<ItemEntity> = await listsRepository.findItemByName(itemName)
+    const checkItemName: QueryResult<ItemEntity> = await itemsRepository.findItemByName(itemName)
 
     if (checkItemName.rows.length > 0) return checkItemName.rows[0].id;
 
-    const newItem: QueryResult<ItemEntity> = await listsRepository.insertNewItem(itemName)
+    const newItem: QueryResult<ItemEntity> = await itemsRepository.insertNewItem(itemName)
 
     return newItem.rows[0].id;
 
