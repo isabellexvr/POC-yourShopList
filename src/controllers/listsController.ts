@@ -4,6 +4,7 @@ import { Request, Response } from "express"
 import { connection } from "../database/db"
 import listsRepository from '../repositories/listsRepository';
 import listsServices from '../services/listsServices';
+import { UserEntity } from '../protocols/usersProtocols';
 
 async function createList(req: Request, res: Response) {
     const { listName } = req.body as List
@@ -42,32 +43,12 @@ async function addItemToList(req: Request, res: Response) {
     }
 }
 
-async function getAllListsByUser(req: Request, res: Response) {
+async function findAllListsByUser(req: Request, res: Response) {
 
     const userId = res.locals.userId;
 
     try {
-        const lists: QueryResult<UserLists> = await connection.query(`
-            SELECT 
-                u."name" as owner,
-                l."listName",
-                ARRAY_TO_JSON(
-                    ARRAY_AGG(
-                        JSONB_BUILD_OBJECT(
-                            'item', i."itemName" 
-                        ) 
-                    ) 
-                ) AS items
-            FROM lists l 
-            JOIN "listsItems" li 
-                ON l.id =li."listId" 
-            JOIN users u 
-                ON l."userId"=u.id
-            JOIN items i
-                ON i.id = li."itemId" 
-            WHERE u.id=$1
-            GROUP BY u.id, l.id
-    ;`, [userId]);
+        const lists: QueryResult<UserEntity[]> = await listsRepository.getAllListsByUserId(userId)
 
         res.status(200).send(lists.rows)
 
@@ -151,7 +132,7 @@ async function deleteItemFromList(req: Request, res: Response) {
 const listsController = {
     createList,
     addItemToList,
-    getAllListsByUser,
+    findAllListsByUser,
     getListById,
     deleteList,
     deleteItemFromList

@@ -1,6 +1,7 @@
 import { QueryResult } from 'pg';
 import { connection } from "../database/db";
 import { ListEntity, ListsItemsEntity, ItemEntity } from '../protocols/listsProtocols';
+import { UserEntity } from '../protocols/usersProtocols';
 
 function insertList(listName: string, userId: number): Promise<QueryResult<ListEntity>>{
     return connection.query(`INSERT INTO lists ("listName", "userId") VALUES ($1,$2) RETURNING id;`, [listName, userId])
@@ -26,13 +27,38 @@ function insertNewItem(itemName: string): Promise<QueryResult<ItemEntity>>{
     return connection.query(`INSERT INTO items ("itemName") VALUES ($1) RETURNING id;`, [itemName]);
 }
 
+function getAllListsByUserId(userId: number): Promise<QueryResult<UserEntity[]>>{
+    return connection.query(`
+        SELECT 
+            u."name" as owner,
+            l."listName",
+            ARRAY_TO_JSON(
+                ARRAY_AGG(
+                    JSONB_BUILD_OBJECT(
+                        'item', i."itemName" 
+                    ) 
+                ) 
+            ) AS items
+        FROM lists l 
+        JOIN "listsItems" li 
+            ON l.id =li."listId" 
+        JOIN users u 
+            ON l."userId"=u.id
+        JOIN items i
+            ON i.id = li."itemId" 
+        WHERE u.id=$1
+        GROUP BY u.id, l.id
+;`, [userId]);
+}
+
 const listsRepository = {
     insertList,
     insertIntoList, 
     getlistByUserId,
     findItemByName,
     insertNewItem,
-    getListByListId
+    getListByListId,
+    getAllListsByUserId
 }
 
 export default listsRepository

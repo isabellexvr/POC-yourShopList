@@ -24,7 +24,7 @@ server.delete("/logout", logout);
 server.post("/new-list", validate(listSchema), listsController.createList);
 server.delete("/delete-list/:listId", listsController.deleteList)
 server.post("/add-item-to-list/:listId", validate(itemSchema), listsController.addItemToList);
-server.get("/get-all-lists", listsController.getAllListsByUser);
+server.get("/get-all-lists", listsController.findAllListsByUser);
 server.get("/get-list-by-id/:listId", listsController.getListById);
 server.delete("/delete-item-from-list/:listId", validate(itemSchema), listsController.deleteItemFromList)
 server.use(errorsHandling);
