@@ -1,6 +1,5 @@
 import express from "express";
 import { registerNewUser } from "./controllers/registerController";
-import dotenv from "dotenv"
 import { validate } from "./middlewares/validationMiddleware";
 import registrationSchema from "./schemas/registrationSchema";
 import loginSchema from "./schemas/loginSchema";
@@ -11,7 +10,6 @@ import { addItemToList, createList, deleteItemFromList, getAllListsByUser, getLi
 import listSchema from "./schemas/listSchema";
 import itemSchema from "./schemas/itemSchema";
 
-dotenv.config()
 const server = express()
 server.use(express.json())
 
