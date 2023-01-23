@@ -1,4 +1,4 @@
-import {Request, Response} from "express"
+import { Request, Response } from "express"
 import authServices from "../services/authServices"
 import { SignIn } from "../protocols/usersProtocols"
 import { connection } from "../database/db"
@@ -18,20 +18,20 @@ export async function userSignIn(req: Request, res: Response) {
     }
 }
 
-export async function logout(req: Request, res: Response){
+export async function logout(req: Request, res: Response) {
 
     const userId = res.locals.userId
 
-    try{
+    try {
         const session = await authServices.checkSessionExistence(userId)
 
-        if(session.rows.length <= 0) throw {name: "non_existent_session_error", message:"this session already doesn't exists"}
+        if (session.rows.length <= 0) throw { name: "non_existent_session_error", message: "this session already doesn't exists" }
 
         await connection.query(`DELETE FROM sessions WHERE "userId"=$1`, [userId])
 
         res.status(200).send("Usuário deslogado com sucesso.")
-    }catch(error: any){
-        if(error.name === "non_existent_session_error") res.status(409).send(error.message)
+    } catch (error: any) {
+        if (error.name === "non_existent_session_error") return res.status(409).send(error.message)
 
         console.log(error)
         res.sendStatus(500)
