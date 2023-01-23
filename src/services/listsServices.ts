@@ -6,7 +6,7 @@ import listsRepository from '../repositories/listsRepository';
 
 async function checkListExistence(listName: string, userId: number): Promise<QueryResult<List>> {
 
-    const checkListName: QueryResult<List> = await listsRepository.getlistByUserId(listName, userId);
+    const checkListName: QueryResult<List> = await listsRepository.finglistByUserId(listName, userId);
 
     if (checkListName.rows.length > 0) throw listNameConflictError();
 

@@ -48,7 +48,7 @@ async function findAllListsByUser(req: Request, res: Response) {
     const userId = res.locals.userId;
 
     try {
-        const lists: QueryResult<UserEntity[]> = await listsRepository.getAllListsByUserId(userId)
+        const lists: QueryResult<UserLists[]> = await listsRepository.getAllListsByUserId(userId)
 
         res.status(200).send(lists.rows)
 
@@ -67,29 +67,9 @@ async function getListById(req: Request, res: Response) {
     try {
         await listsServices.checkIfListBelongsToUser(userId, Number(listId));
         
-        const list: QueryResult<UserLists> = await connection.query(`
-                SELECT 
-                    u."name" as owner,
-                    l."listName",
-                    ARRAY_TO_JSON(
-                        ARRAY_AGG(
-                            JSONB_BUILD_OBJECT(
-                                'item', i."itemName" 
-                            ) 
-                        ) 
-                    ) AS items
-                FROM lists l 
-                JOIN "listsItems" li 
-                    ON l.id =li."listId" 
-                JOIN users u 
-                    ON l."userId"=u.id
-                JOIN items i
-                    ON i.id = li."itemId" 
-                WHERE l.id=$1 AND u.id=$2
-                GROUP BY u.id, l.id
-    ;
-        `, [listId, userId]);
-        res.status(200).send(list.rows)
+        const list: QueryResult<UserLists> = await listsRepository.getList(Number(listId), userId);
+
+        res.status(200).send(list.rows);
     } catch (error) {
         if (error.name === "no_lists_found") res.status(404).send(error.message)
         res.sendStatus(500)

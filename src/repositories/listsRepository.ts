@@ -1,3 +1,4 @@
+import { UserLists } from './../protocols/listsProtocols';
 import { QueryResult } from 'pg';
 import { connection } from "../database/db";
 import { ListEntity, ListsItemsEntity, ItemEntity } from '../protocols/listsProtocols';
@@ -11,7 +12,7 @@ function insertIntoList(listId: number, itemId: number): Promise<QueryResult<Lis
     return connection.query(`INSERT INTO "listsItems" ("listId", "itemId") VALUES ($1,$2)`, [listId, itemId])
 }
 
-function getlistByUserId(listName: string, userId: number): Promise<QueryResult<ListEntity>>{
+function finglistByUserId(listName: string, userId: number): Promise<QueryResult<ListEntity>>{
     return connection.query(`SELECT * FROM lists WHERE "listName"=$1 AND "userId"=$2;`, [listName, userId])
 }
 
@@ -27,7 +28,7 @@ function insertNewItem(itemName: string): Promise<QueryResult<ItemEntity>>{
     return connection.query(`INSERT INTO items ("itemName") VALUES ($1) RETURNING id;`, [itemName]);
 }
 
-function getAllListsByUserId(userId: number): Promise<QueryResult<UserEntity[]>>{
+function getAllListsByUserId(userId: number): Promise<QueryResult<UserLists[]>>{
     return connection.query(`
         SELECT 
             u."name" as owner,
@@ -51,14 +52,40 @@ function getAllListsByUserId(userId: number): Promise<QueryResult<UserEntity[]>>
 ;`, [userId]);
 }
 
+function getList(listId: number, userId: number): Promise<QueryResult<UserLists>>{
+    return connection.query(`
+    SELECT 
+        u."name" as owner,
+        l."listName",
+        ARRAY_TO_JSON(
+            ARRAY_AGG(
+                JSONB_BUILD_OBJECT(
+                    'item', i."itemName" 
+                ) 
+            ) 
+        ) AS items
+    FROM lists l 
+    JOIN "listsItems" li 
+        ON l.id =li."listId" 
+    JOIN users u 
+        ON l."userId"=u.id
+    JOIN items i
+        ON i.id = li."itemId" 
+    WHERE l.id=$1 AND u.id=$2
+    GROUP BY u.id, l.id
+;
+`, [listId, userId]);
+}
+
 const listsRepository = {
     insertList,
     insertIntoList, 
-    getlistByUserId,
+    finglistByUserId,
     findItemByName,
     insertNewItem,
     getListByListId,
-    getAllListsByUserId
+    getAllListsByUserId,
+    getList
 }
 
 export default listsRepository
